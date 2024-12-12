@@ -1,6 +1,6 @@
 jmp main
 
-Msn0: string "PLAY AGAIN? Y/N"
+Msn0: string "PLAY AGAIN? Y OR N"
 
 Letra: var #1		; Contem a letra que foi digitada
 
@@ -8,11 +8,25 @@ posNave: var #1			; Contem a posicao atual da Nave
 posAntNave: var #1		; Contem a posicao anterior da Nave
 dirNave: var #1
 
+memPosNave1: var #1
+memPosNave2: var #1
+memPosNave3: var #1
+memPosNave4: var #1
+memPosNave5: var #1
+memPosNave6: var #1
+
+memNave1: var #1
+memNave2: var #1
+memNave3: var #1
+memNave4: var #1
+memNave5: var #1
+memNave6: var #1
+
+storeNave: var #1
+
 posAlien: var #1		; Contem a posicao atual do Alien
 posAntAlien: var #1		; Contem a posicao anterior do Alien
 
-posMeteoro: var #1
-posAntMeteoro: var #1
 
 posTiro: var #1			; Contem a posicao atual do Tiro
 posAntTiro: var #1		; Contem a posicao anterior do Tiro
@@ -197,79 +211,6 @@ Rand : var #170			; Tabela de nr. Randomicos entre 0 - 7
 
 
 
-decRand: var #1
-Rand2 : var #68
-	static Rand2 + #0, #0
-    static Rand2 + #1, #0
-    static Rand2 + #2, #0
-    static Rand2 + #3, #0
-    static Rand2 + #4, #0
-    static Rand2 + #5, #0
-    static Rand2 + #6, #0
-    static Rand2 + #7, #0
-    static Rand2 + #8, #0
-    static Rand2 + #9, #0
-    static Rand2 + #10, #0
-    static Rand2 + #11, #0
-    static Rand2 + #12, #0
-    static Rand2 + #13, #0
-    static Rand2 + #14, #0
-    static Rand2 + #15, #0
-    static Rand2 + #16, #0
-    static Rand2 + #17, #0
-    static Rand2 + #18, #1
-    static Rand2 + #19, #1
-    static Rand2 + #20, #1
-    static Rand2 + #21, #1
-    static Rand2 + #22, #1
-    static Rand2 + #23, #1
-    static Rand2 + #24, #1
-    static Rand2 + #25, #1
-    static Rand2 + #26, #1
-    static Rand2 + #27, #1
-    static Rand2 + #28, #1
-    static Rand2 + #29, #1
-    static Rand2 + #30, #1
-    static Rand2 + #31, #1
-    static Rand2 + #32, #1
-    static Rand2 + #33, #1
-    static Rand2 + #34, #2
-    static Rand2 + #35, #2
-    static Rand2 + #36, #2
-    static Rand2 + #37, #2
-    static Rand2 + #38, #2
-    static Rand2 + #39, #2
-    static Rand2 + #40, #2
-    static Rand2 + #41, #2
-    static Rand2 + #42, #2
-    static Rand2 + #43, #2
-    static Rand2 + #44, #2
-    static Rand2 + #45, #2
-    static Rand2 + #46, #2
-    static Rand2 + #47, #2
-    static Rand2 + #48, #2
-    static Rand2 + #49, #2
-    static Rand2 + #50, #3
-    static Rand2 + #50, #3
-    static Rand2 + #51, #3
-    static Rand2 + #52, #3
-    static Rand2 + #53, #3
-    static Rand2 + #54, #3
-    static Rand2 + #55, #3
-    static Rand2 + #56, #3
-    static Rand2 + #57, #3
-    static Rand2 + #58, #3
-    static Rand2 + #59, #3
-    static Rand2 + #60, #3
-    static Rand2 + #61, #3
-    static Rand2 + #62, #3
-    static Rand2 + #63, #3
-    static Rand2 + #64, #3
-    static Rand2 + #65, #3
-    static Rand2 + #66, #3
-    static Rand2 + #67, #3
-
-
 ;Codigo principal
 main:
 	call ApagaTela
@@ -285,10 +226,12 @@ main:
 	loadn R2, #0			; cor branca!
 	call ImprimeTela2   		;  Rotina de Impresao de Cenario na Tela Inteira
 
+	call imprimeNaveAnt
+
 	Loadn R0, #0
 	store posNave, R0		; Zera Posicao Atual da Nave
 	store posAntNave, R0	; Zera Posicao Anterior da Nave
-
+	
 	store countPos, R0      ; Inicializa o contador
 	store countPos2, R0
 	
@@ -296,10 +239,6 @@ main:
 	Loadn R0, #620
 	store posAlien, R0		; Zera Posicao Atual do Alien
 	store posAntAlien, R0	; Zera Posicao Anterior do Alien
-
-	Loadn R0, #580
-	store posMeteoro, R0		; Zera Posicao Atual do Alien
-	store posAntMeteoro, R0	; Zera Posicao Anterior do Alien
 
 
 	
@@ -318,7 +257,7 @@ main:
 		cmp R1, R2				
 		ceq UpdateNavePosition	; Chama Rotina de posicao da nave
 
-		loadn R1, #5			; if (mod(c/5)==0 // define velocidade
+		loadn R1, #1			; if (mod(c/5)==0 // define velocidade
 		mod R1, R0, R1
 		cmp R1, R2				
 		ceq MoveAlien			; Chama Rotina de movimentacao do alien
@@ -329,6 +268,52 @@ main:
 	
 ;Funcoes
 ;--------------------------
+
+
+imprimeNaveAnt:				; Lembra a posicao anterior da nave
+	push R0
+	push R5
+	push R6
+
+	load R0, posNave
+
+	load R1, memNave1		; Imprime a nave a partir das informacoes armazenadas
+	load R2, memPosNave1
+	outchar R2, R1
+	load R1, memNave2
+	load R2, memPosNave2
+	outchar R2, R1
+	load R1, memNave3
+	load R2, memPosNave3
+	outchar R2, R1
+	load R1, memNave4
+	load R2, memPosNave4
+	outchar R2, R1
+	load R1, memNave5
+	load R2, memPosNave5
+	outchar R2, R1
+	load R1, memNave6
+	load R2, memPosNave6
+	outchar R2, R1
+	
+
+
+	pop R6
+	pop R5
+	pop R0
+
+	rts
+
+;;
+
+
+PosicaoAnterior:
+	push R0
+	push R1
+
+	
+
+
 
 
 
@@ -453,26 +438,38 @@ MoveNave_Desenha_S:	; Desenha caractere da Nave
 
 	loadn r0, #0	; Reset em r0
 	loadn r3, #1099
+	store memNave1, r3
 	loadn r1, #'e'
+	store memPosNave1, r1
 	outchar r1, r3  ; Desenha 1ro char
 	loadn r1, #'f'
+	store memPosNave2, r1
 	loadn r4, #1100
+	store memNave2, r4
 	add r3, r0, r4
 	outchar r1, r3  ; Desenha 2ro char
 	loadn r1, #'a'
+	store memPosNave3, r1
 	loadn r4, #1138
+	store memNave3, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 3ro char
 	loadn r1, #'b'
+	store memPosNave4, r1
 	loadn r4, #1139
+	store memNave4, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 4ro char
 	loadn r1, #'c'
+	store memPosNave5, r1
 	loadn r4, #1140
+	store memNave5, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 5ro char
 	loadn r1, #'d'
+	store memPosNave6, r1
 	loadn r4, #1141
+	store memNave6, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 6ro char
 	loadn r0, #0	; Reset em r0
@@ -539,26 +536,38 @@ MoveNave_Desenha_D:	; Desenha caractere da Nave
 
 	loadn r0, #0	; Reset em r0
 	loadn r3, #677
+	store memNave1, r3
 	loadn r1, #'g'
+	store memPosNave1, r1
 	outchar r1, r3  ; Desenha 1ro char
 	loadn r1, #'h'
+	store memPosNave2, r1
 	loadn r4, #637
+	store memNave2, r4
 	add r3, r0, r4
 	outchar r1, r3  ; Desenha 2ro char
 	loadn r1, #'i'
+	store memPosNave3, r1
 	loadn r4, #597
+	store memNave3, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 3ro char
 	loadn r1, #'j'
+	store memPosNave4, r1
 	loadn r4, #557
+	store memNave4, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 4ro char
 	loadn r1, #'k'
+	store memPosNave5, r1
 	loadn r4, #636
+	store memNave5, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 5ro char
 	loadn r1, #'l'
+	store memPosNave6, r1
 	loadn r4, #596
+	store memNave6, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 6ro char
 	loadn r0, #0	; Reset em r0
@@ -623,26 +632,38 @@ MoveNave_Desenha_W:	; Desenha caractere da Nave
 
 	loadn r0, #0	; Reset em r0
 	loadn r3, #58
+	store memNave1, r3
 	loadn r1, #'m'
+	store memPosNave1, r1
 	outchar r1, r3  ; Desenha 1ro char
 	loadn r1, #'n'
+	store memPosNave2, r1
 	loadn r4, #59
+	store memNave2, r4
 	add r3, r0, r4
 	outchar r1, r3  ; Desenha 2ro char
 	loadn r1, #'o'
+	store memPosNave3, r1
 	loadn r4, #60
+	store memNave3, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 3ro char
 	loadn r1, #'p'
+	store memPosNave4, r1
 	loadn r4, #61
+	store memNave4, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 4ro char
 	loadn r1, #'q'
+	store memPosNave5, r1
 	loadn r4, #99
+	store memNave5, r4
 	add r3, r0, r4
 	outchar r1, r3 ; Desenha 5ro char
 	loadn r1, #'r'
+	store memPosNave6, r1
 	loadn r4, #100
+	store memNave6, r4
 	add r3, r0, r4
 	outchar r1, r3  ;  Desenha 6ro char
 	loadn r0, #0	; Reset em r0
@@ -706,29 +727,41 @@ MoveNave_Desenha_A: ; Desenha caractere da Nave
 	load R6, posAntNave
 
 	loadn r0, #0	; Reset em r0
-    loadn r3, #642
-    loadn r1, #'s'
-    outchar r1, r3  ; Desenha 1ro char
-    loadn r1, #'t'
-    loadn r4, #602
-    add r3, r0, r4
-    outchar r1, r3  ; Desenha 2ro char
-    loadn r1, #'u'
-    loadn r4, #562
-    add r3, r0, r4
-    outchar r1, r3 ; Desenha 3ro char
-    loadn r1, #'v'
-    loadn r4, #522
-    add r3, r0, r4
-    outchar r1, r3  ;  Desenha 4ro char
-    loadn r1, #'w'
-    loadn r4, #603
-    add r3, r0, r4
-    outchar r1, r3 ; Desenha 5ro char
-    loadn r1, #'x'
-    loadn r4, #563
-    add r3, r0, r4
-    outchar r1, r3  ;  Desenha 6ro char
+	loadn r3, #642
+	store memNave1, r3
+	loadn r1, #'s'
+	store memPosNave1, r1
+	outchar r1, r3  ; Desenha 1ro char
+	loadn r1, #'t'
+	store memPosNave2, r1
+	loadn r4, #602
+	store memNave2, r4
+	add r3, r0, r4
+	outchar r1, r3  ; Desenha 2ro char
+	loadn r1, #'u'
+	store memPosNave3, r1
+	loadn r4, #562
+	store memNave3, r4
+	add r3, r0, r4
+	outchar r1, r3 ; Desenha 3ro char
+	loadn r1, #'v'
+	store memPosNave4, r1
+	loadn r4, #522
+	store memNave4, r4
+	add r3, r0, r4
+	outchar r1, r3  ;  Desenha 4ro char
+	loadn r1, #'w'
+	store memPosNave5, r1
+	loadn r4, #603
+	store memNave5, r4
+	add r3, r0, r4
+	outchar r1, r3 ; Desenha 5ro char
+	loadn r1, #'x'
+	store memPosNave6, r1
+	loadn r4, #563
+	store memNave6, r4
+	add r3, r0, r4
+	outchar r1, r3  ;  Desenha 6ro char
 	loadn r0, #0	; Reset em r0
 
 
@@ -825,21 +858,25 @@ UpdateNavePosition:		; Atualiza a posicao da nava para a flag de colisao
 UpdateNavePosition_Left:
 	loadn R0, #604				; Posicao na esquerda
     store posNave, R0
+	store storeNave, R0
     jmp UpdateNavePosition_End
 
 UpdateNavePosition_Right:
     loadn R0, #636				; Posicao na direita
     store posNave, R0
+	store storeNave, R0
     jmp UpdateNavePosition_End
 
 UpdateNavePosition_Up:
-    loadn R0, #139				; Posicao em cima
+    loadn R0, #140				; Posicao em cima
     store posNave, R0
+	store storeNave, R0
     jmp UpdateNavePosition_End
 
 UpdateNavePosition_Down:
     loadn R0, #1100				; Posicao em baixo
     store posNave, R0
+	store storeNave, R0
 
 UpdateNavePosition_End:
     pop R2
@@ -901,7 +938,7 @@ MoveAlien_Apaga:
 	load R1, posAntNave		; R1 = posAnt
 	cmp r0, r1
 	jne MoveAlien_Apaga_Skip
-		loadn r5, #'X'		; Se o Tiro passa sobre a Nave, apaga com um X, senao apaga com o cenario 
+		loadn r5, #' '		; Se o Tiro passa sobre a Nave, apaga com um X, senao apaga com o cenario 
 		jmp MoveAlien_Apaga_Fim
 
   MoveAlien_Apaga_Skip:	
@@ -941,12 +978,17 @@ MoveAlien_RecalculaPos:
 	push R2
 	push R3
 	push R4
+	push R5
 	
 	load R0, posAlien
     load R4, posNave
+	load R5, storeNave
 
     cmp R0, R4                         ;flag para colisao alien/nave
     jeq MoveTiro_RecalculaPos_Boom
+
+	cmp R0, R5
+	jeq MoveTiro_RecalculaPos_Boom
 	
 ; sorteia nr. randomico entre 0 - 4
 	loadn R2, #Rand 	; declara ponteiro para tabela rand na memoria!
@@ -1008,6 +1050,7 @@ MoveAlien_RecalculaPos:
   MoveAlien_RecalculaPos_FimSwitch:	
 	store posAlien, R0	; Grava a posicao alterada na memoria
 
+	pop R5
 	pop R4
 	pop R3
 	pop R2
@@ -1035,203 +1078,6 @@ MoveAlien_Desenha:
 ;----------------------------------
 ;--------------------------
 
-MoveMeteoro:
-	push r0
-	push r1
-	push r2
-	push r3
-	
-	call MoveMeteoro_RecalculaPos
-	
-; So' Apaga e Redezenha se (pos != posAnt)
-;	If (pos != posAnt)	{
-	load r2, countPos2
-	inc r2
-	store countPos2, r2
-	loadn r3, #16
-	cmp r2, r3	
-	jeq MoveMeteoro_fim_count	
-	
-	load r0, posMeteoro
-	load r1, posAntMeteoro
-	cmp r0, r1
-	jeq MoveMeteoro_Skip
-		call MoveMeteoro_Apaga
-		call MoveMeteoro_Desenha		;}
-  MoveMeteoro_Skip:
-	
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-		
-; ----------------------------
-
-MoveMeteoro_fim_count:
-loadn r2, #0
-
-pop r3
-pop r2
-rts
-		
-MoveMeteoro_Apaga:
-	push R0
-	push R1
-	push R2
-	push R3
-	push R4
-	push R5
-
-	load R0, posAntMeteoro	; R0 == posAnt
-	load R1, posMeteoro		; R1 = posAnt
-	cmp r0, r1
-	jne MoveMeteoro_Apaga_Skip
-		loadn r5, #'X'		; Se o Tiro passa sobre a Nave, apaga com um X, senao apaga com o cenario 
-		jmp MoveMeteoro_Apaga_Fim
-
-  MoveMeteoro_Apaga_Skip:	
-  
-	; --> R2 = Tela1Linha0 + posAnt + posAnt/40  ; tem que somar posAnt/40 no ponteiro pois as linas da string terminam com /0 !!
-	loadn R1, #tela0Linha0	; Endereco onde comeca a primeira linha do cenario!!
-	add R2, R1, r0	; R2 = Tela1Linha0 + posAnt
-	loadn R4, #40
-	div R3, R0, R4	; R3 = posAnt/40
-	add R2, R2, R3	; R2 = Tela1Linha0 + posAnt + posAnt/40
-	
-	loadi R5, R2	; R5 = Char (Tela(posAnt))
-  
-  MoveMeteoro_Apaga_Fim:	
-	outchar R5, R0	; Apaga o Obj na tela com o Char correspondente na memoria do cenario
-	loadn r2, #0
-
-	pop R5
-	pop R4
-	pop R3
-	pop R2
-	pop R1
-	pop R0
-	rts
-;----------------------------------	
-; sorteia nr. randomico entre 0 - 7
-;					switch rand
-;						case 0 : posNova = posAnt -1
-;						case 1 : posNova = posAnt -40
-;						case 2 : posNova = posAnt +1
-;						case 3 : posNova = posAnt +40
-
-	
-MoveMeteoro_RecalculaPos:
-	push R0
-	push R1
-	push R2
-	push R3
-	push R4
-	
-	load R0, posMeteoro
-    load R4, posNave
-;---------------------------------
-;Flag Meteoro e Nave
-    cmp R0, R4
-    jeq MoveMeteoro_RecalculaPos_Boom
-	
-; sorteia nr. randomico entre 0 - 7
-	loadn R2, #Rand2 	; declara ponteiro para tabela rand na memoria!
-	load R1, decRand	; Pega Incremento da tabela Rand
-	add r2, r2, r1		; Soma Incremento ao inicio da tabela Rand
-						; R2 = Rand + IncRand
-	loadi R3, R2 		; busca nr. randomico da memoria em R3
-						; R3 = Rand(IncRand)				
-	inc R1			; Incremento ++
-	loadn r2, #68
-	cmp r1, r2			; Compara com o Final da Tabela e re-estarta em 0
-	jne MoveMeteoro_RecalculaPos_Skip
-		loadn r1, #0		; re-estarta a Tabela Rand em 0
-  MoveMeteoro_RecalculaPos_Skip:
-	store decRand, r1	; Salva incremento ++
-
-
-
-; Switch Rand (r3)
- ; Case 0 : posMeteoro = posMeteoro -1
-	loadn r2, #0
-	cmp r3, r2	; Se Rand = 0
-	jne MoveMeteoro_RecalculaPos_Case1
-	loadn r1, #1
-	sub r0, r0, r1
-	jmp MoveMeteoro_RecalculaPos_FimSwitch	; Break do Switch
-
-
- ; Case 1 : posMeteoro = posMeteoro -40
-   MoveMeteoro_RecalculaPos_Case1:
-	loadn r2, #1
-	cmp r3, r2	; Se Rand = 1
-	jne MoveMeteoro_RecalculaPos_Case2
-	loadn r1, #40
-	sub r0, r0, r1
-	jmp MoveMeteoro_RecalculaPos_FimSwitch	; Break do Switch
-
- ; Case 2 : posMeteoro = posMeteoro  +1
-   MoveMeteoro_RecalculaPos_Case2:
-	loadn r2, #2	; Se Rand = 2
-	cmp r3, r2
-	jne MoveMeteoro_RecalculaPos_Case3
-	loadn r1, #1
-	add r0, r0, r1
-	jmp MoveMeteoro_RecalculaPos_FimSwitch	; Break do Switch
-
- ; Case 3 : posMeteoro = posMeteoro  +40
-   MoveMeteoro_RecalculaPos_Case3:
-	loadn r2, #3	; Se Rand = 3
-	cmp r3, r2
-	jne MoveMeteoro_RecalculaPos_FimSwitch
-	loadn r1, #40
-	add r0, r0, r1
-	jmp MoveMeteoro_RecalculaPos_FimSwitch	; Break do Switch
-
- 
-
- ; Fim Switch:
-  MoveMeteoro_RecalculaPos_FimSwitch:	
-	store posMeteoro, R0	; Grava a posicao alterada na memoria
-
-	pop R4
-	pop R3
-	pop R2
-	pop R1
-	pop R0
-	rts
-
-
-;----------------------------------
-MoveMeteoro_Desenha:
-	push R0
-	push R1
-	
-
-	Loadn R1, #'_'	; Meteoro
-	load R0, posMeteoro
-	outchar R1, R0
-	store posAntMeteoro, R0
-	
-	pop R1
-	pop R0
-	rts
-
-
-;----------------------------------
-MoveMeteoro_RecalculaPos_Boom:
-    ; Limpa a Tela !!
-    loadn R1, #tela0Linha0    ; Endereco onde comeca a primeira linha do cenario!!
-    loadn R2, #0              ; cor branca!
-    call ImprimeTela           ;  Rotina de Impresao de Cenario na Tela Inteira
-
-    ;imprime quer jogar novamente
-    loadn r0, #530
-    loadn r1, #Msn0
-    loadn r2, #0
-    call ImprimeStr
-;----------------------------------
 
 	
 MoveTiro_RecalculaPos_Boom:	
@@ -1245,7 +1091,7 @@ MoveTiro_RecalculaPos_Boom:
 	;imprime quer jogar novamente
 	loadn R4, #0
 	store IncRand, R4
-	loadn r0, #532
+	loadn r0, #530
 	loadn r1, #Msn0
 	loadn r2, #0
 	call ImprimeStr
